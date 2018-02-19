@@ -9,7 +9,7 @@ help:
 
 PYENV_DIR=.virtualenv
 FORKED_FORMULAS_DIR=formulas
-FORMULAS=`. $(PYENV_DIR)/bin/activate && python3 -c 'import sys; sys.path.append("scripts");from update_mrconfig import *; print(*get_org_repos(make_github_agent(), "saltstack-formulas"), sep="\n")'| egrep '\-formula'`
+FORMULAS=`. $(PYENV_DIR)/bin/activate && python3 -c 'import sys; sys.path.append("scripts");from update_mrconfig import *; print(*get_org_repos(make_github_agent(), "saltstack-formulas"), sep="\n")'| egrep '\-formula' | sed -e 's/-formula//' `
 
 pull:
 	git pull --rebase
@@ -29,7 +29,7 @@ muupdate: update_forks
 
 mrupdate: submodules
 	# TODO: safe set-url push origin on update target
-	#(for formula in formulas/*; do FORMULA=`basename $$formula` && cd $$formula && git remote set-url --push origin git@github.com:saltstack-formulas/$$FORMULA.git && cd ../..; done)
+	#(for formula in formulas/*; do FORMULA=`basename $$formula` && cd $$formula && git remote set-url --push origin git@github.com:saltstack-formulas/$$FORMULA-formula.git && cd ../..; done)
 	mr --trust-all -j4 run git checkout master
 	mr --trust-all -j4 update
 
@@ -46,7 +46,7 @@ pdf:
 	make -C doc latexpdf
 
 set_push:
-	(for formula in $${FORMULAS_DIR:-$(FORKED_FORMULAS_DIR)}/*; do FORMULA=`basename $$formula` && cd $$formula && git remote set-url --push origin git@github.com:saltstack-formulas/$$FORMULA.git && cd ../..; done)
+	(for formula in $${FORMULAS_DIR:-$(FORKED_FORMULAS_DIR)}/*; do FORMULA=`basename $$formula` && cd $$formula && git remote set-url --push origin git@github.com:saltstack-formulas/$$FORMULA-formula.git && cd ../..; done)
 
 scripts_prerequisites:
 	@if ! which virtualenv; then echo "Please install virtualenv first";  exit 2; fi
@@ -60,10 +60,10 @@ list: scripts_prerequisites
 update_forks: scripts_prerequisites
 	@mkdir -p $(FORKED_FORMULAS_DIR)
 	@for FORMULA in $(FORMULAS) ; do\
-     test -e $(FORKED_FORMULAS_DIR)/$$FORMULA || git clone  https://github.com/saltstack-formulas/$$FORMULA.git $(FORKED_FORMULAS_DIR)/$$FORMULA;\
+     test -e $(FORKED_FORMULAS_DIR)/$$FORMULA || git clone  https://github.com/saltstack-formulas/$$FORMULA-formula.git $(FORKED_FORMULAS_DIR)/$$FORMULA;\
    done;
 
-GERRIT_REMOTE_URI=git@github.com/saltstack-formulas
+GERRIT_REMOTE_URI=
 remote_gerrit: FORMULAS_DIR=$(FORKED_FORMULAS_DIR)
 remote_gerrit: remote_gerrit_add
 
@@ -88,7 +88,7 @@ remote_github_add:
    for FORMULA in `ls $(FORMULAS_DIR)/`; do\
      cd $(FORMULAS_DIR)/$$FORMULA > /dev/null;\
      if ! git remote | grep $$ID 2>&1 > /dev/null ; then\
-       git remote add $$ID git://github.com/$$ID/$$FORMULA;\
+       git remote add $$ID git://github.com/$$ID/$$FORMULA-formula;\
      fi;\
      d - > /dev/null;\
      done;
