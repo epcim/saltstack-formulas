@@ -7,7 +7,6 @@ help:
 	@echo "set_push      Set custom push_url"
 
 
-PYENV_DIR=.virtualenv
 FORKED_FORMULAS_DIR=formulas
 FORMULAS=`. $(PYENV_DIR)/bin/activate && python3 -c 'import sys; sys.path.append("scripts");from update_mrconfig import *; print(*get_org_repos(make_github_agent(), "saltstack-formulas"), sep="\n")'| egrep '\-formula' | sed -e 's/-formula//' `
 
@@ -49,10 +48,9 @@ set_push:
 	(for formula in $${FORMULAS_DIR:-$(FORKED_FORMULAS_DIR)}/*; do FORMULA=`basename $$formula` && cd $$formula && git remote set-url --push origin git@github.com:saltstack-formulas/$$FORMULA-formula.git && cd ../..; done)
 
 scripts_prerequisites:
-	@if ! which virtualenv; then echo "Please install virtualenv first";  exit 2; fi
-	@virtualenv -p python3 --no-site-packages $(PYENV_DIR)
-	@. $(PYENV_DIR)/bin/activate
-	$(PYENV_DIR)/bin/python -m pip install -r scripts/requirements.txt
+	@if ! which pipenv; then echo "Please install pipenv first";  exit 2; fi
+	@pipenv --venv || pipenv --three
+	@pipenv install
 
 list: scripts_prerequisites
 	@echo $(FORMULAS)
