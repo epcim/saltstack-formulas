@@ -1,5 +1,6 @@
 help:
 	@echo "submodules    Get submodules"
+	@echo "update_forks  Sync upstream formulas"
 	@echo "muconfig      Re-generate .mu_repo with all formulas on Github"
 	@echo "mrconfig      Re-generate .mrconfig with all formulas on Github"
 	@echo "remote_gerrit Add git remote gerrit"
@@ -8,7 +9,7 @@ help:
 
 
 FORKED_FORMULAS_DIR=formulas
-FORMULAS=`. $(PYENV_DIR)/bin/activate && python3 -c 'import sys; sys.path.append("scripts");from update_mrconfig import *; print(*get_org_repos(make_github_agent(), "saltstack-formulas"), sep="\n")'| egrep '\-formula' | sed -e 's/-formula//' `
+FORMULAS=`. pipenv run python3 -c 'import sys; sys.path.append("scripts");from update_mrconfig import *; print(*get_org_repos(make_github_agent(), "saltstack-formulas"), sep="\n")'| egrep '\-formula' | sed -e 's/-formula//' `
 
 pull:
 	git pull --rebase

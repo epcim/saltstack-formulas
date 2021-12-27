@@ -9,15 +9,22 @@ Inspired by https://github.com/salt-formulas/salt-formulas
 
 * Scripts to list github upstream repos and configure them locally
 * May creates forks or submodules at `formulas/<formula name>`
-* May use `mu_repo` or `myrepos`, tools to help in dealing with multiple git ...
 
 ## Usage
 
-      make help
-      make list
+```
+pipenv install
+pipenv shell
 
-### for mu_repo fans
-      make muconfig
-      mu list
-      mu help
+make update_forks
+
+gitbatch -d formulas
+gitbatch -d formulas --mode=pull
+```
+
+Other:
+```
+make help
+make list
+```
 
